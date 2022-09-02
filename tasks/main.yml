@@ -85,9 +85,9 @@
         group: root
         state: link
         force: true
-  when: ansible_local.systemd.version|int < 246 and
-        (not resolv_conf.stat.exists or resolv_conf.stat.islnk) and
-        not resolv_conf.stat.lnk_target == "/run/systemd/resolve/resolv.conf"
+  when: ansible_local.systemd.version | int < 246
+        and (not resolv_conf.stat.exists or resolv_conf.stat.islnk)
+        and not resolv_conf.stat.lnk_target == "/run/systemd/resolve/resolv.conf"
 
 - name: Install stubby configuration
   become: true
