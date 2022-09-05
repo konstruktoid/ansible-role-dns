@@ -1,0 +1,42 @@
+---
+- name: Run apt-get autoremove
+  become: true
+  ansible.builtin.apt:
+    autoremove: 'yes'
+
+- name: Run apt-get clean
+  become: true
+  ansible.builtin.apt:
+    autoclean: 'yes'
+
+- name: Restart systemd-resolved
+  become: true
+  ansible.builtin.systemd:
+    name: systemd-resolved
+    state: restarted
+
+- name: Restart stubby
+  become: true
+  ansible.builtin.service:
+    name: stubby
+    state: restarted
+
+- name: Restart dnsmasq
+  become: true
+  ansible.builtin.service:
+    name: dnsmasq
+    state: restarted
+
+- name: Enable stubby
+  become: true
+  ansible.builtin.systemd:
+    name: stubby
+    enabled: 'yes'
+    state: started
+
+- name: Enable dnsmasq
+  become: true
+  ansible.builtin.systemd:
+    name: dnsmasq
+    enabled: 'yes'
+    state: started

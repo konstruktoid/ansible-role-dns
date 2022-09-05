@@ -1,0 +1,6 @@
+---
+dnsmasq_cache_size: 4096
+dnsmasq_listen_address: "127.0.0.1"
+stubby_idle_timeout: 1000
+stubby_port: 5353
+stubby_round_robin_upstreams: 1

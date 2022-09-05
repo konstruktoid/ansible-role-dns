@@ -1,0 +1,18 @@
+---
+galaxy_info:
+  role_name: dns
+  author: konstruktoid
+  description: DNS forwarding using dnsmasq and stubby.
+  license: apache
+  min_ansible_version: "2.10"
+  platforms:
+    - name: Ubuntu
+      versions:
+        - focal
+        - jammy
+  galaxy_tags:
+    - dns
+    - dnsmasq
+    - stubby
+    - systemd
+    - ubuntu

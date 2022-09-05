@@ -1,0 +1,115 @@
+---
+- name: Create custom facts directory
+  become: true
+  ansible.builtin.file:
+    path: /etc/ansible/facts.d
+    recurse: true
+    state: directory
+    mode: 0755
+    owner: root
+    group: root
+
+- name: Add systemd version fact
+  become: true
+  ansible.builtin.template:
+    src: etc/ansible/facts.d/systemd.fact
+    dest: /etc/ansible/facts.d/systemd.fact
+    mode: 0755
+    owner: root
+    group: root
+
+- name: Update facts
+  ansible.builtin.setup: ~
+
+- name: Run apt update
+  become: true
+  ansible.builtin.apt:
+    update_cache: 'yes'
+    cache_valid_time: 1800
+  notify:
+    - Run apt-get clean
+    - Run apt-get autoremove
+
+- name: Install packages
+  become: true
+  ansible.builtin.apt:
+    name: ['dnsmasq', 'stubby']
+    state: present
+    install_recommends: 'no'
+
+- name: Configure systemd-resolved DNSStubListener
+  become: true
+  ansible.builtin.lineinfile:
+    regexp: "^#?DNSStubListener=yes"
+    line: "DNSStubListener=no"
+    dest: /etc/systemd/resolved.conf
+    state: present
+    mode: 0644
+    create: 'no'
+    backrefs: 'yes'
+  notify:
+    - Restart systemd-resolved
+
+- name: Configure systemd-resolved DNS
+  become: true
+  ansible.builtin.lineinfile:
+    regexp: "^#?DNS="
+    line: "DNS={{ dnsmasq_listen_address }}"
+    dest: /etc/systemd/resolved.conf
+    state: present
+    mode: 0644
+    create: 'no'
+    backrefs: 'yes'
+  notify:
+    - Restart systemd-resolved
+
+- name: Stat resolv.conf
+  ansible.builtin.stat:
+    path: /etc/resolv.conf
+  register: resolv_conf
+
+- name: Fix systemd resolv link
+  block:
+    - name: Remove resolv.conf
+      become: true
+      ansible.builtin.file:
+        path: /etc/resolv.conf
+        state: absent
+
+    - name: Force resolv.conf relink
+      become: true
+      ansible.builtin.file:
+        src: /run/systemd/resolve/resolv.conf
+        dest: /etc/resolv.conf
+        owner: root
+        group: root
+        state: link
+        force: true
+  when: ansible_local.systemd.version | int < 246
+        and (not resolv_conf.stat.exists or resolv_conf.stat.islnk)
+        and not resolv_conf.stat.lnk_target == "/run/systemd/resolve/resolv.conf"
+
+- name: Install stubby configuration
+  become: true
+  ansible.builtin.template:
+    src: etc/stubby/stubby.yml.j2
+    dest: /etc/stubby/stubby.yml
+    owner: root
+    group: root
+    mode: 0644
+  notify:
+    - Restart stubby
+    - Enable stubby
+
+- name: Install dnsmasq configuration
+  become: true
+  ansible.builtin.template:
+    src: etc/dnsmasq.conf.j2
+    dest: /etc/dnsmasq.conf
+    mode: 0644
+    owner: dnsmasq
+    group: nogroup
+  notify:
+    - Restart dnsmasq
+    - Enable dnsmasq
+...
