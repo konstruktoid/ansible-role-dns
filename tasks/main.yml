@@ -63,12 +63,36 @@
   notify:
     - Restart systemd-resolved
 
+- name: Add /etc/hosts script
+  become: true
+  ansible.builtin.copy:
+    src: etc/cron.daily/generate_hosts
+    dest: /etc/cron.daily/generate_hosts
+    backup: true
+    mode: 0755
+    owner: root
+    group: root
+
+- name: Generate a new /etc/hosts
+  become: true
+  ansible.builtin.shell: |
+    set -o pipefail
+    /etc/cron.daily/generate_hosts
+  args:
+    executable: /bin/bash
+  register: generate_hosts
+  changed_when: generate_hosts.rc != 0
+  failed_when: generate_hosts.rc != 0
+
 - name: Stat resolv.conf
   ansible.builtin.stat:
     path: /etc/resolv.conf
   register: resolv_conf
 
 - name: Fix systemd resolv link
+  when: ansible_local.systemd.version | int < 246
+        and (not resolv_conf.stat.exists or resolv_conf.stat.islnk)
+        and not resolv_conf.stat.lnk_target == "/run/systemd/resolve/resolv.conf"
   block:
     - name: Remove resolv.conf
       become: true
@@ -85,9 +109,6 @@
         group: root
         state: link
         force: true
-  when: ansible_local.systemd.version | int < 246
-        and (not resolv_conf.stat.exists or resolv_conf.stat.islnk)
-        and not resolv_conf.stat.lnk_target == "/run/systemd/resolve/resolv.conf"
 
 - name: Install stubby configuration
   become: true

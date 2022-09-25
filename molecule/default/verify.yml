@@ -25,6 +25,16 @@
       ansible.builtin.include_vars:
         file: "{{ lookup('env', 'MOLECULE_EPHEMERAL_DIRECTORY') }}/inventory/host_vars/{{ ansible_hostname }}"
 
+    - name: Verify /etc/hosts
+      ansible.builtin.shell: |
+        set -o pipefail
+        grep '^0.0.0.0\s' /etc/hosts | wc -l
+      args:
+        executable: /bin/bash
+      register: hosts_count
+      failed_when: hosts_count.stdout | int <= 10000
+      changed_when: hosts_count.stdout | int <= 10000
+
     - name: Verify DNS server using dig
       ansible.builtin.command: dig proton.me
       register: dig_server
