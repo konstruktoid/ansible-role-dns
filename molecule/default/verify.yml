@@ -35,8 +35,20 @@
       failed_when: hosts_count.stdout | int <= 10000
       changed_when: hosts_count.stdout | int <= 10000
 
+    - name: Verify DNS server using dig @127.0.0.1
+      ansible.builtin.shell:
+        dig @127.0.0.1 proton.me
+      args:
+        executable: /bin/bash
+      register: dig_server
+      failed_when: 'not "SERVER: 127.0.0.1" in dig_server.stdout'
+      changed_when: 'not "SERVER: 127.0.0.1" in dig_server.stdout'
+
     - name: Verify DNS server using dig
-      ansible.builtin.command: dig proton.me
+      ansible.builtin.shell:
+        dig proton.me
+      args:
+        executable: /bin/bash
       register: dig_server
       failed_when: 'not "SERVER: 127.0.0.1" in dig_server.stdout'
       changed_when: 'not "SERVER: 127.0.0.1" in dig_server.stdout'
@@ -46,3 +58,15 @@
       register: dig_cache
       failed_when: 'not "Query time: 0 msec" in dig_cache.stdout'
       changed_when: 'not "Query time: 0 msec" in dig_cache.stdout'
+
+    - name: Stat /etc/cron.daily/generate_hosts
+      ansible.builtin.stat:
+        path: /etc/cron.daily/generate_hosts
+      register: daily_generate_hosts
+
+    - name: Assert /etc/cron.daily/generate_hosts
+      ansible.builtin.assert:
+        that:
+          - daily_generate_hosts.stat.mode == "0755"
+        success_msg: "{{ daily_generate_hosts.stat.path }} has correct permissions: {{ daily_generate_hosts.stat.mode }}"
+        fail_msg: "{{ daily_generate_hosts.stat.path }} permissions are incorrect: {{ daily_generate_hosts.stat.mode }}"
