@@ -1,17 +1,17 @@
 #!/bin/sh
 
-TMPHOSTS="$(mktemp)"
-TMPHOSTS2="$(mktemp)"
+TMPHOSTS01="$(mktemp)"
+TMPHOSTS02="$(mktemp)"
 
-curl -sSL "https://raw.githubusercontent.com/StevenBlack/hosts/master/alternates/fakenews/hosts" | grep '^0\.0\.0\.0' > "${TMPHOSTS}"
+curl -sSL "https://raw.githubusercontent.com/StevenBlack/hosts/master/alternates/fakenews/hosts" | grep '^0\.0\.0\.0' > "${TMPHOSTS01}"
 {
   curl -sSL "https://pgl.yoyo.org/adservers/serverlist.php?hostformat=hosts&mimetype=plaintext&useip=0.0.0.0" | grep '^0\.0\.0\.0'
   curl -sSL "https://blocklistproject.github.io/Lists/abuse.txt" | grep '^0\.0\.0\.0'
   curl -sSL "https://blocklistproject.github.io/Lists/ads.txt" | grep '^0\.0\.0\.0'
   curl -sSL "https://blocklistproject.github.io/Lists/malware.txt" | grep '^0\.0\.0\.0'
-} >> "${TMPHOSTS}"
+} >> "${TMPHOSTS01}"
 
-cat > "${TMPHOSTS2}"<< EOF
+cat > "${TMPHOSTS02}"<< EOF
 127.0.0.1 local
 127.0.0.1 localhost
 127.0.0.1 localhost.localdomain
@@ -26,6 +26,6 @@ ff02::2 ip6-allrouters
 ff02::3 ip6-allhosts
 EOF
 
-grep -E -v '^#|^$|^\s.*#' "${TMPHOSTS}" | strings | sort | uniq >> "${TMPHOSTS2}"
-cp "${TMPHOSTS2}" "/etc/hosts"
-echo "${TMPHOSTS2}"
+grep -E -v '^#|^$|^\s.*#' "${TMPHOSTS01}" | strings | sort | uniq >> "${TMPHOSTS02}"
+cp "${TMPHOSTS02}" "/etc/hosts"
+rm "${TMPHOSTS01}" "${TMPHOSTS02}"
