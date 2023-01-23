@@ -11,6 +11,18 @@ running as a local DNS on a small network.
 >
 > This is currently a skeleton repository, do not use.
 
+## Defaults
+
+```yaml
+---
+dnsmasq_cache_size: 4096
+dnsmasq_listen_address: "127.0.0.1,{{ ansible_default_ipv4.address | default(ansible_all_ipv4_addresses[0]) }}"
+stubby_idle_timeout: 1000
+stubby_port: 5353
+stubby_round_robin_upstreams: 1
+...
+```
+
 ## Contributing
 
 Do you want to contribute? Great! Contributions are always welcome,
