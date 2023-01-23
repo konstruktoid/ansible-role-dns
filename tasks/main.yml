@@ -37,31 +37,30 @@
     state: present
     install_recommends: 'no'
 
-- name: Configure systemd-resolved DNSStubListener
+- name: Configure systemd-resolved
   become: true
-  ansible.builtin.lineinfile:
-    regexp: "^#?DNSStubListener=yes"
-    line: "DNSStubListener=no"
-    dest: /etc/systemd/resolved.conf
-    state: present
-    mode: 0644
-    create: 'no'
-    backrefs: 'yes'
   notify:
     - Restart systemd-resolved
+  block:
+    - name: Configure systemd-resolved DNSStubListener
+      ansible.builtin.lineinfile:
+        regexp: "^#?DNSStubListener=yes"
+        line: "DNSStubListener=no"
+        dest: /etc/systemd/resolved.conf
+        state: present
+        mode: 0644
+        create: 'no'
+        backrefs: 'yes'
 
-- name: Configure systemd-resolved DNS
-  become: true
-  ansible.builtin.lineinfile:
-    regexp: "^#?DNS="
-    line: "DNS={{ dnsmasq_listen_address }}"
-    dest: /etc/systemd/resolved.conf
-    state: present
-    mode: 0644
-    create: 'no'
-    backrefs: 'yes'
-  notify:
-    - Restart systemd-resolved
+    - name: Configure systemd-resolved DNS
+      ansible.builtin.lineinfile:
+        regexp: "^#?DNS="
+        line: "DNS={{ dnsmasq_listen_address | replace(',', ' ') }}"
+        dest: /etc/systemd/resolved.conf
+        state: present
+        mode: 0644
+        create: 'no'
+        backrefs: 'yes'
 
 - name: Add /etc/hosts script
   become: true
