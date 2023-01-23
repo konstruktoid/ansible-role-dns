@@ -1,6 +1,8 @@
 no-resolv
 domain-needed
 bogus-priv
+{% if dnsmasq_listen_address | length > 0 %}
 listen-address={{ dnsmasq_listen_address }}
+{% endif %}
 server=127.0.0.1#{{ stubby_port }}
 cache-size={{ dnsmasq_cache_size }}
