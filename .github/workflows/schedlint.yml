@@ -1,5 +1,7 @@
-on: [push, pull_request]
-name: Ansible Lint
+on:
+  schedule:
+    - cron: "0 1 * * */3"
+name: Ansible Lint - Scheduled
 
 permissions:
   contents: read
