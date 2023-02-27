@@ -54,8 +54,8 @@
       args:
         executable: /bin/bash
       register: dig_server
+      changed_when: false
       failed_when: 'not "SERVER: 127.0.0.1" in dig_server.stdout'
-      changed_when: 'not "SERVER: 127.0.0.1" in dig_server.stdout'
 
     - name: Verify DNS server using dig
       ansible.builtin.shell:
@@ -63,14 +63,14 @@
       args:
         executable: /bin/bash
       register: dig_server
+      changed_when: false
       failed_when: 'not "SERVER: 127.0.0.1" in dig_server.stdout'
-      changed_when: 'not "SERVER: 127.0.0.1" in dig_server.stdout'
 
     - name: Verify DNS cache using dig
       ansible.builtin.command: dig proton.me
       register: dig_cache
+      changed_when: false
       failed_when: 'not "Query time: 0 msec" in dig_cache.stdout'
-      changed_when: 'not "Query time: 0 msec" in dig_cache.stdout'
 
     - name: Stat /etc/cron.daily/generate_hosts
       ansible.builtin.stat:
