@@ -5,7 +5,7 @@
     path: /etc/ansible/facts.d
     recurse: true
     state: directory
-    mode: 0755
+    mode: "0755"
     owner: root
     group: root
 
@@ -14,7 +14,7 @@
   ansible.builtin.template:
     src: etc/ansible/facts.d/systemd.fact
     dest: /etc/ansible/facts.d/systemd.fact
-    mode: 0755
+    mode: "0755"
     owner: root
     group: root
 
@@ -48,7 +48,7 @@
         line: "DNSStubListener=no"
         dest: /etc/systemd/resolved.conf
         state: present
-        mode: 0644
+        mode: "0644"
         create: 'no'
         backrefs: 'yes'
 
@@ -58,7 +58,7 @@
         line: "DNS={{ dnsmasq_listen_address | replace(',', ' ') }}"
         dest: /etc/systemd/resolved.conf
         state: present
-        mode: 0644
+        mode: "0644"
         create: 'no'
         backrefs: 'yes'
 
@@ -68,7 +68,7 @@
     src: etc/cron.daily/generate_hosts
     dest: /etc/cron.daily/generate_hosts
     backup: true
-    mode: 0755
+    mode: "0755"
     owner: root
     group: root
 
@@ -116,7 +116,7 @@
     dest: /etc/stubby/stubby.yml
     owner: root
     group: root
-    mode: 0644
+    mode: "0644"
   notify:
     - Restart stubby
     - Enable stubby
@@ -126,7 +126,7 @@
   ansible.builtin.template:
     src: etc/dnsmasq.conf.j2
     dest: /etc/dnsmasq.conf
-    mode: 0644
+    mode: "0644"
     owner: dnsmasq
     group: nogroup
   notify:
