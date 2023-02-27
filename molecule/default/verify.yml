@@ -25,15 +25,28 @@
       ansible.builtin.include_vars:
         file: "{{ lookup('env', 'MOLECULE_EPHEMERAL_DIRECTORY') }}/inventory/host_vars/{{ ansible_hostname }}"
 
-    - name: Verify /etc/hosts
+    - name: Verify host in /etc/hosts
+      ansible.builtin.shell: |
+        set -o pipefail
+        grep "{{ item }}" /etc/hosts
+      args:
+        executable: /bin/bash
+      register: local_host
+      with_items:
+        - '^127.0.0.1\slocalhost.localdomain$'
+        - '^127.0.1.1\s{{ ansible_hostname }}'
+      changed_when: false
+      failed_when: local_host.rc != 0
+
+    - name: Verify host count in /etc/hosts
       ansible.builtin.shell: |
         set -o pipefail
         grep '^0.0.0.0\s' /etc/hosts | wc -l
       args:
         executable: /bin/bash
       register: hosts_count
+      changed_when: false
       failed_when: hosts_count.stdout | int <= 10000
-      changed_when: hosts_count.stdout | int <= 10000
 
     - name: Verify DNS server using dig @127.0.0.1
       ansible.builtin.shell:
