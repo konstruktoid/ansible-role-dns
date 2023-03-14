@@ -37,10 +37,20 @@
     state: present
     install_recommends: 'no'
 
+- name: Get installed dnsmasq version
+  ansible.builtin.shell: |
+    set -o pipefail
+    dpkg -s dnsmasq | grep '^Version' | awk '{print $NF}'
+  args:
+    executable: /bin/bash
+  changed_when: false
+  register: dnsmasq_version
+  failed_when: dnsmasq_version.rc != 0
+
 - name: Configure systemd-resolved
   become: true
   notify:
-    - Restart systemd-resolved
+    - Reload systemd
   block:
     - name: Configure systemd-resolved DNSStubListener
       ansible.builtin.lineinfile:
@@ -121,15 +131,27 @@
     - Restart stubby
     - Enable stubby
 
-- name: Install dnsmasq configuration
-  become: true
-  ansible.builtin.template:
-    src: etc/dnsmasq.conf.j2
-    dest: /etc/dnsmasq.conf
-    mode: "0644"
-    owner: dnsmasq
-    group: nogroup
+- name: Configure dnsmasq
   notify:
+    - Reload systemd
     - Restart dnsmasq
     - Enable dnsmasq
+  block:
+    - name: Install dnsmasq configuration
+      become: true
+      ansible.builtin.template:
+        src: etc/dnsmasq.conf.j2
+        dest: /etc/dnsmasq.conf
+        mode: "0644"
+        owner: dnsmasq
+        group: nogroup
+
+    - name: Install dnsmasq service configuration
+      become: true
+      ansible.builtin.template:
+        src: etc/systemd/system/dnsmasq.service
+        dest: /etc/systemd/system/dnsmasq.service
+        mode: "0644"
+        owner: root
+        group: root
 ...
