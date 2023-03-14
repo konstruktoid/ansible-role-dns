@@ -23,6 +23,9 @@ stubby_round_robin_upstreams: 1
 ...
 ```
 
+If `dnsmasq_listen_address: ""`, then the `listen-address` option will be
+omitted.
+
 ## Contributing
 
 Do you want to contribute? Great! Contributions are always welcome,
