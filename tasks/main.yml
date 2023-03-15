@@ -82,17 +82,6 @@
     owner: root
     group: root
 
-- name: Generate a new /etc/hosts
-  become: true
-  ansible.builtin.shell: |
-    set -o pipefail
-    /etc/cron.daily/generate_hosts
-  args:
-    executable: /bin/bash
-  register: generate_hosts
-  changed_when: generate_hosts.rc != 0
-  failed_when: generate_hosts.rc != 0
-
 - name: Stat resolv.conf
   ansible.builtin.stat:
     path: /etc/resolv.conf
@@ -154,4 +143,36 @@
         mode: "0644"
         owner: root
         group: root
+
+- name: Flush all handlers
+  ansible.builtin.meta: flush_handlers
+
+- name: Verify DNS server using dig @127.0.0.1
+  ansible.builtin.shell:
+    dig @127.0.0.1 proton.me
+  args:
+    executable: /bin/bash
+  register: dig_server_localhost
+  changed_when: false
+  failed_when: dig_server_localhost.rc != 0
+
+- name: Verify DNS server using dig @{{ ansible_default_ipv4.address | default(ansible_all_ipv4_addresses[0]) }}
+  ansible.builtin.shell:
+    dig @{{ ansible_default_ipv4.address | default(ansible_all_ipv4_addresses[0]) }} proton.me
+  args:
+    executable: /bin/bash
+  register: dig_server_ipv4
+  changed_when: false
+  failed_when: dig_server_ipv4.rc != 0
+
+- name: Generate a new /etc/hosts
+  become: true
+  ansible.builtin.shell: |
+    set -o pipefail
+    /etc/cron.daily/generate_hosts
+  args:
+    executable: /bin/bash
+  register: generate_hosts
+  changed_when: generate_hosts.rc != 0
+  failed_when: generate_hosts.rc != 0
 ...
