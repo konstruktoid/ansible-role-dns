@@ -9,7 +9,7 @@ running as a local DNS on a small network.
 
 > **Note**
 >
-> This is currently a skeleton repository, do not use.
+> Do not use this role without first testing in a non-operational environment.
 
 ## Defaults
 
