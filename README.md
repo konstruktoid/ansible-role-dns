@@ -11,7 +11,13 @@ running as a local DNS on a small network.
 >
 > Do not use this role without first testing in a non-operational environment.
 
-## Task list
+> **Note**
+>
+> There is a [SLSA](https://slsa.dev/) artifact present under the
+> [slsa action workflow](https://github.com/konstruktoid/ansible-role-dns/actions/workflows/slsa.yml)
+> for verification.
+
+## Task list overview
 
 - Create custom facts directory
 - Add systemd version fact
