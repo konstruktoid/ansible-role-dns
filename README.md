@@ -11,6 +11,24 @@ running as a local DNS on a small network.
 >
 > Do not use this role without first testing in a non-operational environment.
 
+## Task list
+
+- Create custom facts directory
+- Add systemd version fact
+- Update facts
+- Run apt update
+- Install packages
+- Get installed dnsmasq version
+- Configure systemd-resolved
+- Add /etc/hosts script
+- Stat resolv.conf
+- Fix systemd resolv link
+- Install stubby configuration
+- Configure dnsmasq
+- Flush all handlers
+- Verify DNS servers
+- Generate a new /etc/hosts
+
 ## Defaults
 
 ```yaml
