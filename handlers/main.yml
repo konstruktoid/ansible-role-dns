@@ -2,12 +2,12 @@
 - name: Run apt-get autoremove
   become: true
   ansible.builtin.apt:
-    autoremove: 'yes'
+    autoremove: "yes"
 
 - name: Run apt-get clean
   become: true
   ansible.builtin.apt:
-    autoclean: 'yes'
+    autoclean: "yes"
 
 - name: Reload systemd
   become: true
@@ -36,12 +36,12 @@
   become: true
   ansible.builtin.systemd:
     name: stubby
-    enabled: 'yes'
+    enabled: "yes"
     state: started
 
 - name: Enable dnsmasq
   become: true
   ansible.builtin.systemd:
     name: dnsmasq
-    enabled: 'yes'
+    enabled: "yes"
     state: started
