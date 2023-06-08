@@ -19,12 +19,12 @@
     group: root
 
 - name: Update facts
-  ansible.builtin.setup: ~
+  ansible.builtin.setup:
 
 - name: Run apt update
   become: true
   ansible.builtin.apt:
-    update_cache: 'yes'
+    update_cache: "yes"
     cache_valid_time: 1800
   notify:
     - Run apt-get clean
@@ -33,9 +33,9 @@
 - name: Install packages
   become: true
   ansible.builtin.apt:
-    name: ['dnsmasq', 'stubby']
+    name: [dnsmasq, stubby]
     state: present
-    install_recommends: 'no'
+    install_recommends: "no"
 
 - name: Get installed dnsmasq version
   ansible.builtin.shell: |
@@ -54,23 +54,23 @@
   block:
     - name: Configure systemd-resolved DNSStubListener
       ansible.builtin.lineinfile:
-        regexp: "^#?DNSStubListener=yes"
-        line: "DNSStubListener=no"
+        regexp: ^#?DNSStubListener=yes
+        line: DNSStubListener=no
         dest: /etc/systemd/resolved.conf
         state: present
         mode: "0644"
-        create: 'no'
-        backrefs: 'yes'
+        create: "no"
+        backrefs: "yes"
 
     - name: Configure systemd-resolved DNS
       ansible.builtin.lineinfile:
-        regexp: "^#?DNS="
-        line: "DNS={{ dnsmasq_listen_address | replace(',', ' ') }}"
+        regexp: ^#?DNS=
+        line: DNS={{ dnsmasq_listen_address | replace(',', ' ') }}
         dest: /etc/systemd/resolved.conf
         state: present
         mode: "0644"
-        create: 'no'
-        backrefs: 'yes'
+        create: "no"
+        backrefs: "yes"
 
 - name: Add /etc/hosts script
   become: true
@@ -88,9 +88,7 @@
   register: resolv_conf
 
 - name: Fix systemd resolv link
-  when: ansible_local.systemd.version | int < 246
-        and (not resolv_conf.stat.exists or resolv_conf.stat.islnk)
-        and not resolv_conf.stat.lnk_target == "/run/systemd/resolve/resolv.conf"
+  when: ansible_local.systemd.version | int < 246 and (not resolv_conf.stat.exists or resolv_conf.stat.islnk) and not resolv_conf.stat.lnk_target == "/run/systemd/resolve/resolv.conf"
   block:
     - name: Remove resolv.conf
       become: true
@@ -148,8 +146,7 @@
   ansible.builtin.meta: flush_handlers
 
 - name: Verify DNS server using dig @127.0.0.1
-  ansible.builtin.shell:
-    dig @127.0.0.1 proton.me
+  ansible.builtin.shell: dig @127.0.0.1 proton.me
   args:
     executable: /bin/bash
   register: dig_server_localhost
@@ -157,8 +154,7 @@
   failed_when: dig_server_localhost.rc != 0
 
 - name: Verify DNS server using dig @{{ ansible_default_ipv4.address | default(ansible_all_ipv4_addresses[0]) }}
-  ansible.builtin.shell:
-    dig @{{ ansible_default_ipv4.address | default(ansible_all_ipv4_addresses[0]) }} proton.me
+  ansible.builtin.shell: dig @{{ ansible_default_ipv4.address | default(ansible_all_ipv4_addresses[0]) }} proton.me
   args:
     executable: /bin/bash
   register: dig_server_ipv4
@@ -175,4 +171,3 @@
   register: generate_hosts
   changed_when: generate_hosts.rc != 0
   failed_when: generate_hosts.rc != 0
-...
