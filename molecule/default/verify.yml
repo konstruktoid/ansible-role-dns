@@ -69,6 +69,12 @@
       changed_when: false
       failed_when: 'not "Query time: 0 msec" in dig_cache.stdout'
 
+    - name: Verify DNS failure
+      ansible.builtin.command: curl -sSLv adservice.google.eu
+      register: dns_fail
+      changed_when: false
+      failed_when: 'not "connect to 0.0.0.0 port 80 failed: Connection refused" in dns_fail.stderr'
+
     - name: Stat /etc/cron.daily/generate_hosts
       ansible.builtin.stat:
         path: /etc/cron.daily/generate_hosts
