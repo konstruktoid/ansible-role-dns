@@ -88,9 +88,10 @@
   register: resolv_conf
 
 - name: Fix systemd resolv link
-  when: ansible_local.systemd.version | int < 246
-        and (not resolv_conf.stat.exists or resolv_conf.stat.islnk)
-        and not resolv_conf.stat.lnk_target == "/run/systemd/resolve/resolv.conf"
+  when:
+    - ansible_local.systemd.version | int < 246
+    - (not resolv_conf.stat.exists or resolv_conf.stat.islnk)
+    - not resolv_conf.stat.lnk_target == "/run/systemd/resolve/resolv.conf"
   block:
     - name: Remove resolv.conf
       become: true
